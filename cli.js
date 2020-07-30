@@ -12,6 +12,7 @@ program.version(pkg.version);
 
 program
   .option("-c, --config <string>", "config file")
+  .option("-f, --file <string>", "markdown file to update")
   .option("-a, --api-key <string>", "GitHub API key")
   .option("-d, --debug", "output extra debugging")
   .option(
@@ -54,6 +55,7 @@ async function cli() {
     { key: "debug", demand: demand.boolean, argsOnly: true },
     { key: "apiKey", demand: demand.string, argsOnly: true },
     { key: "custom", demand: demand.object, argsOnly: true },
+    { key: "file", demand: demand.string },
     { key: "remote", demand: demand.string },
     { key: "badLabels", demand: demand.arrayOfString },
     { key: "badMilestones", demand: demand.arrayOfString },
