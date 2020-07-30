@@ -52,7 +52,9 @@ async function main(config) {
     Promise.all([
       api.get("search/issues", {
         searchParams: {
-          q: `is:pr ${config.queriesExtra || ""} ${config.prsQueryExtra || ""}`,
+          q: `is:issue ${config.queriesExtra || ""} ${
+            config.prsQueryExtra || ""
+          }`,
         },
       }),
 
@@ -66,9 +68,7 @@ async function main(config) {
 
       api.get("gists", {
         searchParams: {
-          q: `is:pr ${config.queriesExtra || ""} ${
-            config.gistsQueryExtra || ""
-          }`,
+          q: `${config.queriesExtra || ""} ${config.gistsQueryExtra || ""}`,
         },
       }),
     ]),
