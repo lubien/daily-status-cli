@@ -20,3 +20,6 @@ Options:
   -C, --custom <keyValue...>      custom option in the format KEY=VALUE
   -h, --help                      display help for command
 ```
+
+If you want super powers, create your own [config file](config.template.js) so you can
+go overboard customizing features then add `-c /path/to/config.js` when you run.
