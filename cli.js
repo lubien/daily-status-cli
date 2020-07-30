@@ -25,6 +25,10 @@ program
   .option("--todo-milestones <string...>", "milestones to mark as To Do")
   .option("--doing-labels <string...>", "issues to mark as Doing")
   .option("--doing-milestones <string...>", "milestones to mark as Doing")
+  .option("--prs-query-extra <string>", "query string to pull requests query")
+  .option("--issues-query-extra <string>", "query string to issues query")
+  .option("--gists-query-extra <string>", "query string to gists query")
+  .option("--queries-extra <string>", "query string to all queries")
   .option(
     "-C, --custom <keyValue...>",
     "custom option in the format KEY=VALUE",
@@ -57,6 +61,10 @@ async function cli() {
     { key: "custom", demand: demand.object, argsOnly: true },
     { key: "file", demand: demand.string },
     { key: "remote", demand: demand.string },
+    { key: "prsQueryExtra", demand: demand.string },
+    { key: "issuesQueryExtra", demand: demand.string },
+    { key: "gistsQueryExtra", demand: demand.string },
+    { key: "queriesExtra", demand: demand.string },
     { key: "badLabels", demand: demand.arrayOfString },
     { key: "badMilestones", demand: demand.arrayOfString },
     { key: "autoToDoLabels", demand: demand.arrayOfString },
