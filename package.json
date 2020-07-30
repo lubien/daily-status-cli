@@ -1,0 +1,24 @@
+{
+  "name": "daily-status-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cli.js",
+  "bin": {
+    "daily-status": "./cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^6.0.0",
+    "got": "^11.5.1",
+    "moment": "^2.27.0",
+    "ora": "^4.0.5"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.5"
+  }
+}
