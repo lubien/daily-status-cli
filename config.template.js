@@ -2,10 +2,10 @@ module.exports = {
   remote: "origin",
   file: "Home.md",
 
-  prsQueryExtra: "is:open",
-  issuesQueryExtra: "is:open",
+  prsQueryExtra: "is:open author:@me",
+  issuesQueryExtra: "is:open assignee:@me",
   gistsQueryExtra: "",
-  queriesExtra: "sort:updated-desc author:@me",
+  queriesExtra: "sort:updated-desc",
 
   template: {
     date: "\n# {{DATE}}\n",
@@ -27,7 +27,7 @@ module.exports = {
 **Status update:**
 
 **PRs:** 
-{{PULL_REQUESTS}}`,
+{{CURRENT_PULL_REQUESTS}}`,
 
     item: `[#{{NUMBER}} ({{TITLE}})]({{URL}})`,
   },
