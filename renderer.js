@@ -5,6 +5,7 @@ const globalHelpers = {
   isIssue,
   hasAnyLabel,
   hasAnyMilestone,
+  isGist,
   moment,
 };
 
@@ -111,11 +112,15 @@ function hasAnyMilestone(item, milestones) {
 }
 
 function isPr(item) {
-  return item.pull_request;
+  return !!item.pull_request;
+}
+
+function isGist(item) {
+  return !!item.git_pull_url;
 }
 
 function isIssue(item) {
-  return !isPr(item);
+  return !isPr(item) && !isGist(item);
 }
 
 exports.renderMetaLine = renderMetaLine;
