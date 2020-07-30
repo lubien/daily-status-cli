@@ -28,9 +28,30 @@ Options:
   --todo-milestones <string...>   milestones to mark as To Do
   --doing-labels <string...>      issues to mark as Doing
   --doing-milestones <string...>  milestones to mark as Doing
+  --prs-query-extra <string>      query string to pull requests query
+  --issues-query-extra <string>   query string to issues query
+  --gists-query-extra <string>    query string to gists query
+  --queries-extra <string>        query string to all queries
   -C, --custom <keyValue...>      custom option in the format KEY=VALUE
   -h, --help                      display help for command
 ```
 
 If you want super powers, create your own [config file](config.template.js) so you can
 go overboard customizing features then add `-c /path/to/config.js` when you run.
+
+## Advanced example
+
+Here's a showcase of how to use most of the flags:
+
+```sh
+$ daily-status \
+  --file Home.md \
+  --config /path/to/file.js \ 
+  --remote origin \
+  --bad-labels 'Ignore' 'bad-issue' \
+  --doing-milestones 'Work' 'Project' \
+  --queries-extra 'sort:updated-desc' \
+  --prs-query-extra 'org:my-awesome-company' \
+  --custom foo=bar \
+  -C nickname='Lubien'
+```
