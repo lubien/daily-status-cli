@@ -7,7 +7,7 @@ const demand = require("./demand");
 const main = require("./main");
 
 const program = new Command();
-program.name(pkg.name);
+program.name("daily-status");
 program.version(pkg.version);
 
 program
