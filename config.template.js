@@ -18,6 +18,8 @@ module.exports = {
     personSeparator: "---",
 
     container: `\
+## {{USER_LOGIN}}
+
 **Current issues:**
 {{CURRENT_ISSUES}}
 
