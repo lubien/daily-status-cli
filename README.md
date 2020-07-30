@@ -1,6 +1,16 @@
 # daily-status-cli
 
-Update a repo with your daily status from PRs, issues and even gists
+Update a repo with your daily status from PRs, issues and even gists.
+
+## Usage
+
+Head to a git repo and run:
+
+```sh
+$ daily-status -f Home.md
+```
+
+You will be asked a GitHub [Personal Access Token](https://github.com/settings/tokens) only at the first time.
 
 ```sh
 Usage: daily-status [options]
@@ -8,6 +18,7 @@ Usage: daily-status [options]
 Options:
   -V, --version                   output the version number
   -c, --config <string>           config file
+  -f, --file <string>             markdown file to update
   -a, --api-key <string>          GitHub API key
   -d, --debug                     output extra debugging
   -r, --remote <string>           git remote name to pull/push. Default 'origin'
