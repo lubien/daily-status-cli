@@ -9,8 +9,6 @@ const ora = require("ora");
 const readline = require("readline");
 const got = require("got");
 
-// TODO: config no repo do dl one
-
 module.exports = main;
 async function main(config) {
   const cwd = process.cwd();
