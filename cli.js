@@ -102,14 +102,6 @@ async function cli() {
   return config;
 }
 
-function camelCaseToDash(str) {
-  return str.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`);
-}
-
-function getEnvOr(key, fallback) {
-  return process.env[key] || fallback;
-}
-
 cli()
   .then(main)
   .catch((err) => {
