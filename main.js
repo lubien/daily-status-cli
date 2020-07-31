@@ -75,15 +75,13 @@ async function main(config) {
   );
 
   const tmpFilePath = path.join(os.tmpdir(), "daily-status-message");
-  await fs.writeFile(
-    tmpFilePath,
-    renderer.renderFile(config, {
-      user,
-      prs: prs.items,
-      issues: issues.items,
-      gists,
-    })
-  );
+  const originallyRendered = renderer.renderFile(config, {
+    user,
+    prs: prs.items,
+    issues: issues.items,
+    gists,
+  });
+  await fs.writeFile(tmpFilePath, originallyRendered);
   const modifications = await editFileOnEditor(tmpFilePath);
   const userDailyMarkup = renderer.prepareDailyForUser(
     config,
@@ -94,6 +92,13 @@ async function main(config) {
   if (!userDailyMarkup.length) {
     console.error("Empty modifications, aborting");
     process.exit(1);
+  }
+
+  if (
+    originallyRendered.trim() === modifications.trim() &&
+    !(await prompConfirmation("Nothing changed! Continue?"))
+  ) {
+    process.exit(0);
   }
 
   const currentText = await withSpinner(
@@ -161,6 +166,11 @@ async function main(config) {
   await withSpinner("Pushing", git.push(cwd, []));
 
   process.exit(0);
+}
+
+async function prompConfirmation(text) {
+  const response = await prompt(`${text} (y/n) `);
+  return ["yes", "y", "true", "ok"].includes(response.trim().toLowerCase());
 }
 
 async function prompt(text) {
