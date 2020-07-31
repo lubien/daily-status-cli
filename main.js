@@ -194,9 +194,6 @@ async function prompt(text) {
     });
 
     rl.on("close", function () {
-      if (!answer) {
-        reject();
-      }
       resolve(answer);
     });
   });
