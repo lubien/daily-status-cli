@@ -24,7 +24,13 @@ async function main(config) {
 
   if (!config.apiKey) {
     config.apiKey = await prompt("What's your GitHub API token? ");
-    await fs.writeFile(defaultTokenFile, config.apiKey);
+    if (!config.apiKey.length) {
+      console.error("Token cannot be blank");
+      process.exit(1);
+    }
+    if (await prompConfirmation(`Save key at ${defaultTokenFile}?`)) {
+      await fs.writeFile(defaultTokenFile, config.apiKey);
+    }
   }
 
   config.apiKey = config.apiKey.trim();
