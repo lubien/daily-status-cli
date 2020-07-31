@@ -115,7 +115,7 @@ cli()
   .catch((err) => {
     if (program.debug) {
       console.log(err);
-    } else {
+    } else if (err && err.message) {
       console.error(err.message);
     }
     process.exit(1);
