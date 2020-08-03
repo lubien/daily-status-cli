@@ -80,8 +80,27 @@ async function main(config) {
     config.debug
   );
 
-  const tmpFilePath = path.join(os.tmpdir(), "daily-status-message");
+  const gitDir = path.join(cwd, ".git");
+  const tmpFilePath = path.join(gitDir, "daily-status-message");
+
+  let hasTmpFile = await fileExists(tmpFilePath);
+  if (hasTmpFile) {
+    const shouldReset =
+      typeof config.reset === "boolean"
+        ? config.reset
+        : await prompConfirmation("Reset current status?");
+
+    if (shouldReset) {
+      await fs.unlink(tmpFilePath);
+      hasTmpFile = false;
+    }
+  }
+
+  const currentRenderedFile =
+    hasTmpFile && (await fs.readFile(tmpFilePath, "utf-8"));
+
   const originallyRendered = renderer.renderFile(config, {
+    currentRenderedFile,
     user,
     prs: prs.items,
     issues: issues.items,
@@ -107,6 +126,15 @@ async function main(config) {
     process.exit(0);
   }
 
+  const shouldDeploy =
+    typeof config.deploy === "boolean"
+      ? config.deploy
+      : await prompConfirmation("Commit and push chages?");
+
+  if (!shouldDeploy) {
+    process.exit(0);
+  }
+
   const currentText = await withSpinner(
     "Reading file",
     fs.readFile(filePath, "utf-8")
@@ -122,6 +150,7 @@ async function main(config) {
   const finalText = renderer.replaceDate(config, new Date(), updatedUserText);
 
   await withSpinner("Saving file", fs.writeFile(filePath, finalText, "utf-8"));
+  await fs.unlink(tmpFilePath);
 
   const branchName = await withSpinner(
     "Getting current branch",
@@ -212,6 +241,13 @@ async function editFileOnEditor(file) {
       resolve(await fs.readFile(file, "utf-8"));
     });
   });
+}
+
+async function fileExists(pathTo) {
+  return fs
+    .access(pathTo)
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function tryToGetDataFromFiles(possibleFiles) {

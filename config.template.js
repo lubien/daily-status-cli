@@ -2,6 +2,11 @@ module.exports = {
   remote: "origin",
   file: "Home.md",
 
+  // true / false / 'ask'
+  reset: "ask",
+  // true / false / 'ask'
+  deploy: "ask",
+
   prsQueryExtra: "is:open author:@me",
   issuesQueryExtra: "is:open assignee:@me",
   gistsQueryExtra: "",

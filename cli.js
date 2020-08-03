@@ -15,6 +15,10 @@ program
   .option("-f, --file <string>", "markdown file to update")
   .option("-a, --api-key <string>", "GitHub API key")
   .option("-d, --debug", "output extra debugging")
+  .option("--reset", "starts from zero")
+  .option("--no-reset", "do not delete the older version if exists")
+  .option("--deploy", "deploy chanes without asking")
+  .option("--no-deploy", "do not deploy changes")
   .option(
     "-r, --remote <string>",
     "git remote name to pull/push. Default 'origin'"
@@ -97,6 +101,20 @@ async function cli() {
       item.demand(program[item.key], item.key);
       config[item.key] = program[item.key];
     }
+  }
+
+  if (program.noDeploy) {
+    config.deploy = false;
+  }
+  if (program.deploy) {
+    config.deploy = true;
+  }
+
+  if (program.noReset) {
+    config.reset = false;
+  }
+  if (program.reset) {
+    config.reset = true;
   }
 
   return config;

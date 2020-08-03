@@ -24,7 +24,7 @@ const othersTemplate = `${othersSeparator}
 **Gists:** 
 {{OTHER_GISTS}}`;
 
-function renderFile(config, { user, prs, issues, gists }) {
+function renderFile(config, { currentRenderedFile, user, prs, issues, gists }) {
   const { currentItems, todoItems, otherItems } = prs.concat(issues).reduce(
     (acc, item, index, items) => {
       const group = config.groupItem(item, config, globalHelpers, index, items);
@@ -92,11 +92,9 @@ function renderFile(config, { user, prs, issues, gists }) {
   };
   const renderedOthers = applyTemplate(config, othersTemplate, data);
 
-  const renderedContainer = applyTemplate(
-    config,
-    config.template.container,
-    data
-  );
+  const renderedContainer = currentRenderedFile
+    ? removeOtherLines(currentRenderedFile)
+    : applyTemplate(config, config.template.container, data);
 
   return [renderedContainer, "", renderedOthers].join("\n");
 }
