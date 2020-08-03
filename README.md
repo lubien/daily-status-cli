@@ -22,9 +22,14 @@ Usage: daily-status [options]
 Options:
   -V, --version                   output the version number
   -c, --config <string>           config file
-  -f, --file <string>             markdown file to update
+  -f, --file <string>             markdown file to update. Default: Home.md
   -a, --api-key <string>          GitHub API key
+  --api-key-file <string>         File that stores the GitHub API key. Default: ~/.github.token
   -d, --debug                     output extra debugging
+  --reset                         starts from zero
+  --no-reset                      do not delete the older version if exists
+  --deploy                        deploy chanes without asking
+  --no-deploy                     do not deploy changes
   -r, --remote <string>           git remote name to pull/push. Default 'origin'
   --bad-labels <string...>        issues to ignore by default
   --bad-milestones <string...>    milestones to ignore by default
