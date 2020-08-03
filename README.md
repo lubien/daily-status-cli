@@ -12,6 +12,10 @@ $ daily-status -f Home.md
 
 You will be asked a GitHub [Personal Access Token](https://github.com/settings/tokens) only at the first time.
 
+To get issues and pull requests from private repos, you need 'repos' permission.
+
+To get private gists, you need 'gists' permission.
+
 ```sh
 Usage: daily-status [options]
 
@@ -46,7 +50,7 @@ Here's a showcase of how to use most of the flags:
 ```sh
 $ daily-status \
   --file Home.md \
-  --config /path/to/file.js \ 
+  --config /path/to/file.js \
   --remote origin \
   --bad-labels 'Ignore' 'bad-issue' \
   --doing-milestones 'Work' 'Project' \
