@@ -99,6 +99,10 @@ async function cli() {
         config[item.key] = customConfigFile[item.key];
       }
     }
+
+    if (typeof customConfigFile.groupItem === "function") {
+      config.groupItem = customConfigFile.groupItem;
+    }
   }
 
   for (let item of editableKeys) {
