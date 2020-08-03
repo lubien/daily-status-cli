@@ -55,12 +55,17 @@ module.exports = {
     index,
     items
   ) {
-    // Ignore right away any red flag
+    // You can also ignore items. Uncomment this:
+    // if (someCondition) {
+    //   return 'ignore'
+    // }
+
+    // Put on 'other' right away any red flag
     if (
       hasAnyLabel(item, config.badLabels) ||
       hasAnyMilestone(item, config.badMilestones)
     ) {
-      return;
+      return "other";
     }
 
     if (

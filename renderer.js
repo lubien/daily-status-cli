@@ -25,19 +25,30 @@ const othersTemplate = `${othersSeparator}
 {{OTHER_GISTS}}`;
 
 function renderFile(config, { currentRenderedFile, user, prs, issues, gists }) {
-  const { currentItems, todoItems, otherItems } = prs.concat(issues).reduce(
-    (acc, item, index, items) => {
-      const group = config.groupItem(item, config, globalHelpers, index, items);
-      const realGroup =
-        {
-          current: "currentItems",
-          todo: "todoItems",
-        }[group] || "otherItems";
-      acc[realGroup].push(item);
-      return acc;
-    },
-    { currentItems: [], todoItems: [], otherItems: [] }
-  );
+  const { currentItems, todoItems, otherItems, ignoreItems } = prs
+    .concat(issues)
+    .concat(gists)
+    .reduce(
+      (acc, item, index, items) => {
+        const group = config.groupItem(
+          item,
+          config,
+          globalHelpers,
+          index,
+          items
+        );
+        const realGroup =
+          {
+            current: "currentItems",
+            todo: "todoItems",
+            ignore: "ignoreItems",
+            other: "otherItems",
+          }[group] || "otherItems";
+        acc[realGroup].push(item);
+        return acc;
+      },
+      { currentItems: [], todoItems: [], otherItems: [], ignoreItems: [] }
+    );
 
   const currentIssues = currentItems.filter(isIssue);
   const todoIssues = todoItems.filter(isIssue);
@@ -47,6 +58,11 @@ function renderFile(config, { currentRenderedFile, user, prs, issues, gists }) {
   const otherPullRequests = todoItems
     .filter(isPr)
     .concat(otherItems.filter(isPr));
+
+  const ignoredGistIds = new Set(
+    ignoreItems.filter(isGist).map((item) => item.id)
+  );
+  const otherGists = gists.filter((gist) => !ignoredGistIds.has(gist.id));
 
   const data = {
     ...Object.entries(user).reduce((acc, [key, value]) => {
@@ -87,8 +103,8 @@ function renderFile(config, { currentRenderedFile, user, prs, issues, gists }) {
       otherPullRequests
     ),
 
-    otherGists: gists,
-    OTHER_GISTS: applyArrayOfItemsTemplate(config, config.template, gists),
+    otherGists,
+    OTHER_GISTS: applyArrayOfItemsTemplate(config, config.template, otherGists),
   };
   const renderedOthers = applyTemplate(config, othersTemplate, data);
 
