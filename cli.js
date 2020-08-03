@@ -12,8 +12,12 @@ program.version(pkg.version);
 
 program
   .option("-c, --config <string>", "config file")
-  .option("-f, --file <string>", "markdown file to update")
+  .option("-f, --file <string>", "markdown file to update. Default: Home.md")
   .option("-a, --api-key <string>", "GitHub API key")
+  .option(
+    "--api-key-file <string>",
+    "File that stores the GitHub API key. Default: ~/.github.token"
+  )
   .option("-d, --debug", "output extra debugging")
   .option("--reset", "starts from zero")
   .option("--no-reset", "do not delete the older version if exists")
@@ -62,6 +66,7 @@ async function cli() {
   const editableKeys = [
     { key: "debug", demand: demand.boolean, argsOnly: true },
     { key: "apiKey", demand: demand.string, argsOnly: true },
+    { key: "apiKeyFile", demand: demand.string, argsOnly: true },
     { key: "custom", demand: demand.object, argsOnly: true },
     { key: "file", demand: demand.string },
     { key: "remote", demand: demand.string },
@@ -116,6 +121,8 @@ async function cli() {
   if (program.reset) {
     config.reset = true;
   }
+
+  config.apiKeyFile = config.apiKeyFile.replace(/^~/, process.env.HOME);
 
   return config;
 }

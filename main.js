@@ -17,9 +17,8 @@ async function main(config) {
   await demand.gitRepository(cwd);
   await demand.file(filePath);
 
-  const defaultTokenFile = `${process.env.HOME}/.github.token`;
   if (!config.apiKey) {
-    config.apiKey = await tryToGetDataFromFiles([defaultTokenFile]);
+    config.apiKey = await tryToGetDataFromFiles([config.apiKeyFile]);
   }
 
   if (!config.apiKey) {
@@ -28,8 +27,8 @@ async function main(config) {
       console.error("Token cannot be blank");
       process.exit(1);
     }
-    if (await prompConfirmation(`Save key at ${defaultTokenFile}?`)) {
-      await fs.writeFile(defaultTokenFile, config.apiKey);
+    if (await prompConfirmation(`Save key at ${config.apiKeyFile}?`)) {
+      await fs.writeFile(config.apiKeyFile, config.apiKey);
     }
   }
 

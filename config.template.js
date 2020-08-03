@@ -1,4 +1,6 @@
 module.exports = {
+  apiKeyFile: "~/.github.token",
+
   remote: "origin",
   file: "Home.md",
 
