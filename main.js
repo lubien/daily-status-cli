@@ -172,33 +172,11 @@ async function main(config) {
     if (!err.stdout.includes("Resolve all conflicts manually")) {
       throw err;
     }
-    let hasConflicts = true;
-    while (hasConflicts) {
-      const status = await withSpinner(
-        "Getting conflict status",
-        git.diff(cwd, ["--check"]).catch((x) => x)
-      );
-      const conflicted = Array.from(
-        new Set(
-          status.stdout
-            .trim()
-            .split("\n")
-            .filter((line) => line.includes("leftover conflict"))
-            .map((line) => line.slice(0, line.indexOf(":")))
-        )
-      );
-
-      hasConflicts = conflicted.length > 0;
-
-      for (let file of conflicted) {
-        await editFileOnEditor(path.join(cwd, file));
-      }
-    }
-    await withSpinner("Adding files", git.add(cwd, ["."]));
-    await withSpinner("Continuing rebase", git.rebase(cwd, ["--continue"]));
+    console.log("Fix rebase merge conflicts manually then push updates");
+    process.exit(1);
   }
-  await withSpinner("Pushing", git.push(cwd, []));
 
+  await withSpinner("Pushing", git.push(cwd, []));
   process.exit(0);
 }
 
@@ -238,6 +216,21 @@ async function editFileOnEditor(file) {
         return reject(err);
       }
       resolve(await fs.readFile(file, "utf-8"));
+    });
+  });
+}
+
+async function mergetool() {
+  return new Promise((resolve, reject) => {
+    const child = child_process.spawn("git", ["mergetool"], {
+      stdio: "inherit",
+    });
+
+    child.on("exit", async (err) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
     });
   });
 }
