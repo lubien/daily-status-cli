@@ -3,6 +3,7 @@ const util = require("util");
 
 const exec = util.promisify(child_process.exec);
 
+exports.checkout = gitCommand("checkout");
 exports.status = gitCommand("status");
 exports.diff = gitCommand("diff");
 exports.rebase = gitCommand("rebase");

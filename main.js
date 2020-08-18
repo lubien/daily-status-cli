@@ -134,6 +134,37 @@ async function main(config) {
     process.exit(0);
   }
 
+  const branchName = await withSpinner(
+    "Getting current branch",
+    git.getBranchName(cwd)
+  );
+
+  try {
+    await withSpinner(
+      "Rebasing",
+      git.pull(cwd, ["--rebase", config.remote, branchName])
+    );
+  } catch (err) {
+    if (!err.stdout.includes("Resolve all conflicts manually")) {
+      throw err;
+    }
+    await git.checkout(cwd, ["--theirs", "."]);
+    await git.add(cwd, ["."]);
+    try {
+      await git.rebase(cwd, ["--continue"]);
+    } catch (continueErr) {
+      if (
+        !continueErr.stdout.includes(
+          "No changes - did you forget to use 'git add'?"
+        )
+      ) {
+        throw err;
+      }
+
+      await git.rebase(cwd, ["--skip"]);
+    }
+  }
+
   const currentText = await withSpinner(
     "Reading file",
     fs.readFile(filePath, "utf-8")
@@ -150,11 +181,6 @@ async function main(config) {
 
   await withSpinner("Saving file", fs.writeFile(filePath, finalText, "utf-8"));
   await fs.unlink(tmpFilePath);
-
-  const branchName = await withSpinner(
-    "Getting current branch",
-    git.getBranchName(cwd)
-  );
 
   const commitMessage = "Update".replace(/'/g, "\\'");
 
