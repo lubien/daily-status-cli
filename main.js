@@ -180,7 +180,9 @@ async function main(config) {
   const finalText = renderer.replaceDate(config, new Date(), updatedUserText);
 
   await withSpinner("Saving file", fs.writeFile(filePath, finalText, "utf-8"));
-  await fs.unlink(tmpFilePath);
+  if (config.reset === true) {
+    await fs.unlink(tmpFilePath);
+  }
 
   const commitMessage = "Update".replace(/'/g, "\\'");
 
