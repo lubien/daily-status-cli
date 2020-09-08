@@ -27,7 +27,7 @@ async function main(config) {
       console.error("Token cannot be blank");
       process.exit(1);
     }
-    if (await prompConfirmation(`Save key at ${config.apiKeyFile}?`)) {
+    if (await promptConfirmation(`Save key at ${config.apiKeyFile}?`)) {
       await fs.writeFile(config.apiKeyFile, config.apiKey);
     }
   }
@@ -87,7 +87,7 @@ async function main(config) {
     const shouldReset =
       typeof config.reset === "boolean"
         ? config.reset
-        : await prompConfirmation("Reset current status?");
+        : await promptConfirmation("Reset current status?");
 
     if (shouldReset) {
       await fs.unlink(tmpFilePath);
@@ -120,7 +120,7 @@ async function main(config) {
 
   if (
     originallyRendered.trim() === modifications.trim() &&
-    !(await prompConfirmation("Nothing changed! Continue?"))
+    !(await promptConfirmation("Nothing changed! Continue?"))
   ) {
     process.exit(0);
   }
@@ -128,7 +128,7 @@ async function main(config) {
   const shouldDeploy =
     typeof config.deploy === "boolean"
       ? config.deploy
-      : await prompConfirmation("Commit and push chages?");
+      : await promptConfirmation("Commit and push changes?");
 
   if (!shouldDeploy) {
     process.exit(0);
@@ -208,7 +208,7 @@ async function main(config) {
   process.exit(0);
 }
 
-async function prompConfirmation(text) {
+async function promptConfirmation(text) {
   const response = await prompt(`${text} (y/n) `);
   return ["yes", "y", "true", "ok"].includes(response.trim().toLowerCase());
 }
