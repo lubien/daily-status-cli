@@ -235,7 +235,7 @@ async function prompt(text) {
 
 async function editFileOnEditor(file) {
   return new Promise((resolve, reject) => {
-    const child = child_process.spawn(process.env.EDITOR, [file], {
+    const child = child_process.spawn(process.env.EDITOR || 'vim', [file], {
       stdio: "inherit",
     });
 
