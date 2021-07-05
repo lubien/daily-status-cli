@@ -1,4 +1,6 @@
 module.exports = {
+  isAutoTool: false,
+  
   apiKeyFile: "~/.github.token",
 
   remote: "origin",

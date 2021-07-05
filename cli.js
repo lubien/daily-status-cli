@@ -60,7 +60,7 @@ async function cli() {
   const config = {
     ...defaultConfig,
     template: { ...defaultConfig.template },
-    custom: {},
+    custom: {}
   };
 
   const editableKeys = [
@@ -68,6 +68,8 @@ async function cli() {
     { key: "apiKey", demand: demand.string, argsOnly: true },
     { key: "apiKeyFile", demand: demand.string, argsOnly: true },
     { key: "custom", demand: demand.object, argsOnly: true },
+    { key: "isAutoTool", demand: demand.boolean },
+    { key: "users", demand: demand.arrayOfString },
     { key: "file", demand: demand.string },
     { key: "remote", demand: demand.string },
     { key: "prsQueryExtra", demand: demand.string },

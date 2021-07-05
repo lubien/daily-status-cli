@@ -45,90 +45,33 @@ async function main(config) {
     },
   });
 
-  const user = await withSpinner(
-    "Loading user",
-    api.get("user"),
-    "Failed to load user",
+  const usernames = [].concat(config.users || [])
+  const users = await withSpinner(
+    usernames.length ? "Loading users" : "Loading user",
+    Promise.all(
+      usernames.length ? 
+        usernames.map(username => api.get(`users/${username}`)) :
+        [api.get("user")]
+    ),
+    "Failed to load users",
     config.debug
-  );
+  )
 
-  const [prs, issues, gists] = await withSpinner(
-    "Loading issues, pull requests and gists",
-    Promise.all([
-      api.get("search/issues", {
-        searchParams: {
-          q: `is:pr ${config.queriesExtra || ""} ${config.prsQueryExtra || ""}`,
-        },
-      }),
+  const usersWithMarkup = (
+    await Promise.all(users.map(user => renderTextForUser(config, api, cwd, user)))
+  ).filter(x => x)
 
-      api.get("search/issues", {
-        searchParams: {
-          q: `is:issue ${config.queriesExtra || ""} ${
-            config.issuesQueryExtra || ""
-          }`,
-        },
-      }),
-
-      api.get("gists", {
-        searchParams: {
-          q: `${config.queriesExtra || ""} ${config.gistsQueryExtra || ""}`,
-        },
-      }),
-    ]),
-    "Failed to load items",
-    config.debug
-  );
-
-  const gitDir = path.join(cwd, ".git");
-  const tmpFilePath = path.join(gitDir, "daily-status-message");
-
-  let hasTmpFile = await fileExists(tmpFilePath);
-  if (hasTmpFile) {
-    const shouldReset =
-      typeof config.reset === "boolean"
-        ? config.reset
-        : await promptConfirmation("Reset current status?");
-
-    if (shouldReset) {
-      await fs.unlink(tmpFilePath);
-      hasTmpFile = false;
-    }
+  const shouldAbort = !usersWithMarkup.length
+  if (shouldAbort) {
+    process.exit(0)
+    return
   }
 
-  const currentRenderedFile =
-    hasTmpFile && (await fs.readFile(tmpFilePath, "utf-8"));
-
-  const originallyRendered = renderer.renderFile(config, {
-    currentRenderedFile,
-    user,
-    prs: prs.items,
-    issues: issues.items,
-    gists,
-  });
-  await fs.writeFile(tmpFilePath, originallyRendered);
-  const modifications = await editFileOnEditor(tmpFilePath);
-  const userDailyMarkup = renderer.prepareDailyForUser(
-    config,
-    user,
-    modifications
-  );
-
-  if (!userDailyMarkup.length) {
-    console.error("Empty modifications, aborting");
-    process.exit(1);
-  }
-
-  if (
-    originallyRendered.trim() === modifications.trim() &&
-    !(await promptConfirmation("Nothing changed! Continue?"))
-  ) {
-    process.exit(0);
-  }
-
-  const shouldDeploy =
+  const shouldDeploy = config.isAutoTool || (
     typeof config.deploy === "boolean"
       ? config.deploy
-      : await promptConfirmation("Commit and push changes?");
+      : await promptConfirmation("Commit and push changes?")
+  );
 
   if (!shouldDeploy) {
     process.exit(0);
@@ -170,12 +113,15 @@ async function main(config) {
     fs.readFile(filePath, "utf-8")
   );
 
-  const updatedUserText = renderer.replaceUserStatus(
-    config,
-    user,
-    currentText,
-    userDailyMarkup
-  );
+  const updatedUserText = usersWithMarkup
+    .reduce((textAcc, [user, userDailyMarkup]) =>
+      renderer.replaceUserStatus(
+        config,
+        user,
+        textAcc,
+        userDailyMarkup
+      )
+    , currentText)
 
   const finalText = renderer.replaceDate(config, new Date(), updatedUserText);
 
@@ -206,6 +152,94 @@ async function main(config) {
 
   await withSpinner("Pushing", git.push(cwd, []));
   process.exit(0);
+}
+
+async function renderTextForUser(config, api, cwd, user) {
+  const [prs, issues, gists] = await withSpinner(
+    `Loading issues, pull requests and gists for ${user.login}`,
+    Promise.all([
+      api.get("search/issues", {
+        searchParams: {
+          q: `is:pr author:${user.login} ${config.queriesExtra || ""} ${config.prsQueryExtra || ""}`,
+        },
+      }),
+
+      api.get("search/issues", {
+        searchParams: {
+          q: `is:issue assignee:${user.login} ${config.queriesExtra || ""} ${
+            config.issuesQueryExtra || ""
+          }`,
+        },
+      }),
+
+      api.get("gists", {
+        searchParams: {
+          q: `${config.queriesExtra || ""} ${config.gistsQueryExtra || ""}`,
+        },
+      }),
+    ]),
+    "Failed to load items",
+    config.debug
+  );
+
+  const gitDir = path.join(cwd, ".git");
+  const tmpFilePath = path.join(gitDir, "daily-status-message");
+
+  let hasTmpFile = !config.isAutoTool && await fileExists(tmpFilePath);
+  if (hasTmpFile) {
+    const shouldReset =
+      typeof config.reset === "boolean"
+        ? config.reset
+        : await promptConfirmation("Reset current status?");
+
+    if (shouldReset) {
+      await fs.unlink(tmpFilePath);
+      hasTmpFile = false;
+    }
+  }
+
+  const currentRenderedFile =
+    hasTmpFile && (await fs.readFile(tmpFilePath, "utf-8"));
+
+  const originallyRendered = renderer.renderFile(config, {
+    currentRenderedFile,
+    user,
+    prs: prs.items,
+    issues: issues.items,
+    gists,
+  });
+
+  let modifications = originallyRendered
+
+  if (!config.isAutoTool) {
+    await fs.writeFile(tmpFilePath, originallyRendered);
+    modifications = await editFileOnEditor(tmpFilePath);
+  }
+
+  const userDailyMarkup = renderer.prepareDailyForUser(
+    config,
+    user,
+    modifications
+  );
+
+  // No need to handle user inputs
+  if (config.isAutoTool) {
+    return [user, userDailyMarkup]
+  }
+
+  if (!userDailyMarkup.length) {
+    console.error("Empty modifications, aborting");
+    return false
+  }
+
+  if (
+    originallyRendered.trim() === modifications.trim() &&
+    !(await promptConfirmation("Nothing changed! Continue?"))
+  ) {
+    return false
+  }
+
+  return [user, userDailyMarkup]
 }
 
 async function promptConfirmation(text) {

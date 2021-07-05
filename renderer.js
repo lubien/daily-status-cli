@@ -70,6 +70,8 @@ function renderFile(config, { currentRenderedFile, user, prs, issues, gists }) {
       return acc;
     }, {}),
 
+    user,
+
     custom: config.custom || {},
 
     currentIssues,
